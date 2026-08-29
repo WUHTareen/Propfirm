@@ -169,7 +169,7 @@ Plus: referral links with click/conversion/commission tracking and withdrawal.
 
 | Layer | Choice |
 |---|---|
-| Framework | **Laravel 11**, PHP 8.3 (client explicitly requested Laravel) |
+| Framework | **Laravel 11**, PHP 8.4 (client explicitly requested Laravel) |
 | Frontend | Blade + Livewire/Vue, Tailwind CSS, dark theme design system, GSAP |
 | Database | **MySQL 8** — required for ACID transactions (payments, withdrawals, phase changes must be atomic). NoSQL is not appropriate here |
 | Cache/Queue | Redis (a complementary layer, *not* the database) |
@@ -193,7 +193,7 @@ Plus: referral links with click/conversion/commission tracking and withdrawal.
 
 **Installed and working:**
 - Nginx (config at `/etc/nginx/sites-available/propfirm`, symlinked to `sites-enabled`, default site removed)
-- PHP 8.3 FPM + extensions: mysql, mbstring, xml, curl, zip, bcmath, gd, redis, intl
+- PHP 8.4 FPM + extensions: mysql, mbstring, xml, curl, zip, bcmath, gd, redis, intl (upgraded from 8.3 via ondrej/php PPA)
 - MySQL 8 — database `propfirm`, user `propfirm`@`localhost`
 - Redis
 - Composer
