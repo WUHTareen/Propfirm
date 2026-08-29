@@ -10,11 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     /**
      * @var list<string>
@@ -40,6 +42,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -121,5 +125,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasFundedAccount(): bool
     {
         return $this->tradingAccounts()->where('status', 'funded')->exists();
+    }
+
+    /**
+     * Whether the user is a back-office staff member (any non-trader role).
+     */
+    public function isStaff(): bool
+    {
+        return $this->hasAnyRole(['admin', 'support', 'finance']);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
     }
 }

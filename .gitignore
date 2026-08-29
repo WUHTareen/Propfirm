@@ -1,6 +1,7 @@
 /.phpunit.cache
 /node_modules
-/public/build
+# NOTE: public/build (compiled Vite assets) IS committed on purpose — the
+# production droplet has no Node, so assets are built here and shipped in Git.
 /public/hot
 /public/storage
 /storage/*.key

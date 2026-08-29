@@ -17,7 +17,8 @@ Foundation milestone — build order steps 1–2:
 - [x] Complete database schema (19 migrations) + Eloquent models
 - [x] Seed data: challenge plans (7 sizes × 3 types), settings, FAQs
 - [x] Production config (`.env.example`) + deploy tooling (`deploy.sh`, `ops/`)
-- [ ] Auth (Fortify + 2FA), roles (Spatie) — next milestone
+- [x] Auth (Fortify): register, login, email verification, password reset, 2FA
+- [x] Roles (Spatie): admin / support / finance / trader + first admin user
 - [ ] Admin (Filament): Challenge Plan Builder — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards

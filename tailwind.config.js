@@ -12,7 +12,25 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"IBM Plex Sans"', ...defaultTheme.fontFamily.sans],
+                display: ['"Sora"', ...defaultTheme.fontFamily.sans],
+                mono: ['"IBM Plex Mono"', ...defaultTheme.fontFamily.mono],
+            },
+            colors: {
+                brand: {
+                    300: '#5EEAD4',
+                    400: '#2DD4C0',
+                    500: '#14B8A6',
+                    600: '#0D9488',
+                    700: '#0F766E',
+                },
+                ink: {
+                    950: '#080C12',
+                    900: '#0B1017',
+                    800: '#111A24',
+                    700: '#16212E',
+                    600: '#1E2A38',
+                },
             },
         },
     },

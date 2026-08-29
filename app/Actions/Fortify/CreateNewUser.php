@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Actions\Fortify;
+
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Contracts\CreatesNewUsers;
+
+class CreateNewUser implements CreatesNewUsers
+{
+    use PasswordValidationRules;
+
+    /**
+     * Validate and create a newly registered user.
+     *
+     * @param  array<string, string>  $input
+     *
+     * @throws ValidationException
+     */
+    public function create(array $input): User
+    {
+        Validator::make($input, [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique(User::class),
+            ],
+            'password' => $this->passwordRules(),
+        ])->validate();
+
+        $user = User::create([
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'password' => Hash::make($input['password']),
+            'referral_code' => $this->uniqueReferralCode(),
+        ]);
+
+        // Every registered customer is a trader by default.
+        $user->assignRole('trader');
+
+        return $user;
+    }
+
+    /**
+     * Generate a short, collision-checked referral code.
+     */
+    protected function uniqueReferralCode(): string
+    {
+        do {
+            $code = Str::upper(Str::random(8));
+        } while (User::where('referral_code', $code)->exists());
+
+        return $code;
+    }
+}
