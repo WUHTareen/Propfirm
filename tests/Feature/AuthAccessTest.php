@@ -57,8 +57,9 @@ class AuthAccessTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('admin');
 
-        $this->actingAs($admin)->get('/dashboard')->assertRedirect(route('admin.home'));
-        $this->actingAs($admin)->get('/admin')->assertOk()->assertSee('Back office');
+        // Staff land in the Filament back office at /admin.
+        $this->actingAs($admin)->get('/dashboard')->assertRedirect('/admin');
+        $this->actingAs($admin)->get('/admin')->assertOk();
     }
 
     public function test_traders_cannot_reach_the_back_office(): void
@@ -66,6 +67,7 @@ class AuthAccessTest extends TestCase
         $trader = User::factory()->create(['email_verified_at' => now()]);
         $trader->assignRole('trader');
 
+        // Filament denies non-staff via User::canAccessPanel().
         $this->actingAs($trader)->get('/admin')->assertForbidden();
     }
 

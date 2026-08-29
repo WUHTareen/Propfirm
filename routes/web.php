@@ -11,9 +11,9 @@ Route::view('/', 'welcome')->name('home');
  */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        // Staff members are routed to the back office instead.
+        // Staff members are routed to the Filament back office (/admin) instead.
         if (auth()->user()->isStaff()) {
-            return redirect()->route('admin.home');
+            return redirect('/admin');
         }
 
         return view('dashboard');
@@ -22,9 +22,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/profile', 'profile')->name('profile');
 });
 
-/*
- * Back office — staff only. Replaced by the Filament admin panel in Phase 02.
- */
-Route::middleware(['auth', 'verified', 'staff'])->group(function () {
-    Route::view('/admin', 'admin.placeholder')->name('admin.home');
-});
+// The back office lives at /admin, owned by the Filament panel
+// (see App\Providers\Filament\AdminPanelProvider). Access is gated to staff
+// via User::canAccessPanel().

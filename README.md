@@ -19,7 +19,8 @@ Foundation milestone — build order steps 1–2:
 - [x] Production config (`.env.example`) + deploy tooling (`deploy.sh`, `ops/`)
 - [x] Auth (Fortify): register, login, email verification, password reset, 2FA
 - [x] Roles (Spatie): admin / support / finance / trader + first admin user
-- [ ] Admin (Filament): Challenge Plan Builder — next milestone
+- [x] Admin (Filament): panel at `/admin` (staff-gated) + Challenge Plan Builder
+- [ ] Buy Challenge flow + crypto checkout — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards
 - [ ] Marketing website + CMS

@@ -26,3 +26,10 @@ yarn-error.log
 # Local SQLite dev database
 /database/*.sqlite
 /database/*.sqlite-journal
+
+# Filament publishes its own precompiled assets via `composer install`
+# (the filament:upgrade post-autoload script), so they are not committed.
+/public/css/filament
+/public/js/filament
+/public/js/filament.js
+/public/filament
