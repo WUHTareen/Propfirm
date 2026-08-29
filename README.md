@@ -1,1 +1,57 @@
-# Propfirm
+# Prop Firm Trading Platform
+
+A proprietary trading firm ("prop firm") platform built on **Laravel 11 / PHP 8.3+**.
+
+> **Important:** this is **not** a trading platform. All trading happens on
+> MetaTrader 5 / MetaTrader 4. This application (1) sells evaluation
+> challenges, (2) tracks each trader's account status and rule compliance, and
+> (3) runs the business — orders, MT5 assignment, KYC, withdrawals, rewards.
+
+See `CLAUDE.md` for the full product context, business model and roadmap.
+
+## Status
+
+Foundation milestone — build order steps 1–2:
+
+- [x] Laravel 11 project scaffold
+- [x] Complete database schema (19 migrations) + Eloquent models
+- [x] Seed data: challenge plans (7 sizes × 3 types), settings, FAQs
+- [x] Production config (`.env.example`) + deploy tooling (`deploy.sh`, `ops/`)
+- [ ] Auth (Fortify + 2FA), roles (Spatie) — next milestone
+- [ ] Admin (Filament): Challenge Plan Builder — next milestone
+- [ ] Buy-challenge flow + crypto checkout
+- [ ] Trader dashboard, withdrawals, KYC, rewards
+- [ ] Marketing website + CMS
+
+## Data model (high level)
+
+`challenge_plans` is the single source of truth for pricing **and** evaluation
+rules (admin-configurable — nothing hardcoded). Traders place `orders`, which
+become `trading_accounts` (MT5/MT4 credentials encrypted at rest) that move
+through phases; `equity_snapshots` power the equity curve and drawdown checks.
+Supporting tables: `kyc_documents`, `withdrawals`, `certificates`,
+`reward_points` (ledger), `reward_submissions`, `giveaway_entries`,
+`affiliates`/`referrals`, `coupons`, `settings`, `faqs`, `testimonials`.
+
+## Local development
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+
+# Quick start with SQLite:
+#   set DB_CONNECTION=sqlite in .env, then
+touch database/database.sqlite
+php artisan migrate --seed
+
+php artisan serve
+```
+
+For a MySQL setup (matches production), create the `propfirm` database and set
+the `DB_*` values in `.env` instead.
+
+## Deployment
+
+The droplet pulls from Git and runs `./deploy.sh`. See `ops/README.md` for the
+one-time Supervisor / cron / SSL setup.
