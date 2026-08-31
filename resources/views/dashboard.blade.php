@@ -34,38 +34,41 @@
                         default => 'bg-amber-500/15 text-amber-300',
                     };
                 @endphp
-                <div class="rounded-2xl border border-ink-600 bg-ink-800 p-5">
+                <a href="{{ route('dashboard.accounts.show', $account) }}"
+                   class="block rounded-2xl border border-ink-600 bg-ink-800 p-5 transition hover:border-ink-500">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="font-display text-lg font-semibold text-white">${{ number_format($account->account_size) }}</p>
-                            <p class="text-sm text-slate-400">{{ strtoupper($account->platform) }} · {{ str_replace('_', '-', ucfirst($account->challenge_type)) }}</p>
+                            <p class="text-sm text-slate-400">{{ strtoupper($account->platform) }} · {{ str_replace('_', '-', ucfirst($account->challenge_type)) }} · Phase {{ $account->current_phase }}</p>
                         </div>
                         <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $statusColor }}">{{ str_replace('_', ' ', ucfirst($account->status)) }}</span>
                     </div>
 
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-500">Profit target</span>
+                            <span class="tabular-nums text-slate-300">{{ $account->profitTargetProgress() }}%</span>
+                        </div>
+                        <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-ink-900">
+                            <div class="h-full bg-brand-500" style="width: {{ $account->profitTargetProgress() }}%"></div>
+                        </div>
+                    </div>
+
                     <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
                         <div>
-                            <dt class="text-slate-500">Phase</dt>
-                            <dd class="text-slate-200">{{ $account->current_phase }}</dd>
+                            <dt class="text-slate-500">Equity</dt>
+                            <dd class="tabular-nums text-slate-200">{{ $account->displayEquity() !== null ? '$'.number_format($account->displayEquity()) : '—' }}</dd>
                         </div>
                         <div>
                             <dt class="text-slate-500">Login</dt>
                             <dd class="font-mono text-slate-200">{{ $account->login ?? '— pending —' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-slate-500">Profit target</dt>
-                            <dd class="tabular-nums text-slate-200">{{ $account->profit_target_amount ? '$'.number_format($account->profit_target_amount) : '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-slate-500">Max loss</dt>
-                            <dd class="tabular-nums text-slate-200">{{ $account->max_drawdown_limit ? '$'.number_format($account->max_drawdown_limit) : '—' }}</dd>
                         </div>
                     </dl>
 
                     @if ($account->status === 'pending_assignment')
                         <p class="mt-4 rounded-lg bg-ink-900 px-3 py-2 text-xs text-slate-400">Your credentials are being prepared. You'll be notified when your account is ready.</p>
                     @endif
-                </div>
+                </a>
             @endforeach
         </div>
     @endif

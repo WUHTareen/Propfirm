@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Livewire\BuyChallenge;
@@ -26,6 +27,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/buynow', BuyChallenge::class)->name('dashboard.buynow');
     Route::get('/dashboard/orders', [OrderController::class, 'index'])->name('dashboard.orders');
     Route::get('/dashboard/orders/{order}/pay', [OrderController::class, 'pay'])->name('dashboard.orders.pay');
+
+    // Account Overview (Phase 04)
+    Route::get('/dashboard/accounts/{account}', [AccountController::class, 'show'])->name('dashboard.accounts.show');
 });
 
 /*

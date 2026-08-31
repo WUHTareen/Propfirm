@@ -93,4 +93,99 @@ class TradingAccount extends Model
 
         return round((($current - (float) $this->starting_balance) / (float) $this->starting_balance) * 100, 2);
     }
+
+    /**
+     * The most recent equity figure (falls back to balance, then starting).
+     */
+    public function displayEquity(): ?float
+    {
+        if ($this->current_equity !== null) {
+            return (float) $this->current_equity;
+        }
+        if ($this->current_balance !== null) {
+            return (float) $this->current_balance;
+        }
+
+        return $this->starting_balance !== null ? (float) $this->starting_balance : null;
+    }
+
+    /**
+     * Whether we have any live metrics yet (an assigned + synced account).
+     */
+    public function hasLiveMetrics(): bool
+    {
+        return $this->current_equity !== null || $this->current_balance !== null;
+    }
+
+    /**
+     * Profit made so far in account currency (equity − starting balance).
+     */
+    public function profitAmount(): float
+    {
+        if ($this->starting_balance === null) {
+            return 0.0;
+        }
+
+        return round(($this->displayEquity() ?? 0) - (float) $this->starting_balance, 2);
+    }
+
+    /**
+     * Progress toward the phase profit target, 0–100 (clamped).
+     */
+    public function profitTargetProgress(): float
+    {
+        if (! $this->profit_target_amount || (float) $this->profit_target_amount <= 0) {
+            return 0.0;
+        }
+
+        $pct = ($this->profitAmount() / (float) $this->profit_target_amount) * 100;
+
+        return round(max(0, min(100, $pct)), 1);
+    }
+
+    /**
+     * How much of the MAX loss allowance has been consumed, 0–100.
+     */
+    public function maxDrawdownUsedPercent(): float
+    {
+        if (! $this->max_drawdown_limit || (float) $this->max_drawdown_limit <= 0 || ! $this->hasLiveMetrics()) {
+            return 0.0;
+        }
+
+        $loss = max(0, (float) $this->starting_balance - ($this->displayEquity() ?? 0));
+
+        return round(min(100, ($loss / (float) $this->max_drawdown_limit) * 100), 1);
+    }
+
+    /**
+     * How much of TODAY's loss allowance has been consumed, 0–100.
+     */
+    public function dailyDrawdownUsedPercent(): float
+    {
+        $baseline = $this->day_start_balance !== null ? (float) $this->day_start_balance : (float) $this->starting_balance;
+
+        if (! $this->daily_drawdown_limit || (float) $this->daily_drawdown_limit <= 0 || ! $this->hasLiveMetrics()) {
+            return 0.0;
+        }
+
+        $loss = max(0, $baseline - ($this->displayEquity() ?? 0));
+
+        return round(min(100, ($loss / (float) $this->daily_drawdown_limit) * 100), 1);
+    }
+
+    /**
+     * Min trading days required by the plan for the current phase.
+     */
+    public function requiredTradingDays(): int
+    {
+        $phases = $this->challengePlan?->phases ?? [];
+        $current = collect($phases)->firstWhere('phase', $this->current_phase);
+
+        return (int) ($current['min_trading_days'] ?? $this->challengePlan?->min_trading_days ?? 0);
+    }
+
+    public function isCredentialed(): bool
+    {
+        return ! empty($this->login);
+    }
 }

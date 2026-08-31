@@ -22,7 +22,9 @@ Foundation milestone — build order steps 1–2:
 - [x] Admin (Filament): panel at `/admin` (staff-gated) + Challenge Plan Builder
 - [x] Buy Challenge flow + crypto checkout (coupons, points, manual/NOWPayments,
       webhook, admin Orders + Mark-paid → provisions a pending account)
-- [ ] Orders + Account Overview (trader dashboard) — next milestone
+- [x] Account Overview: metric tiles, profit-target & drawdown progress, SVG
+      equity chart, per-account detail with credentials + rules
+- [ ] Admin account assignment + phase/breach management — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards
 - [ ] Marketing website + CMS
