@@ -11,6 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Payment gateway webhooks are authenticated by signature, not CSRF.
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/payment/*',
+        ]);
+
         // Spatie permission middleware aliases + our staff gate.
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

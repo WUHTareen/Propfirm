@@ -20,7 +20,9 @@ Foundation milestone — build order steps 1–2:
 - [x] Auth (Fortify): register, login, email verification, password reset, 2FA
 - [x] Roles (Spatie): admin / support / finance / trader + first admin user
 - [x] Admin (Filament): panel at `/admin` (staff-gated) + Challenge Plan Builder
-- [ ] Buy Challenge flow + crypto checkout — next milestone
+- [x] Buy Challenge flow + crypto checkout (coupons, points, manual/NOWPayments,
+      webhook, admin Orders + Mark-paid → provisions a pending account)
+- [ ] Orders + Account Overview (trader dashboard) — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards
 - [ ] Marketing website + CMS

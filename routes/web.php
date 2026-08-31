@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentWebhookController;
+use App\Livewire\BuyChallenge;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
 /*
  * Trader area — requires a verified, logged-in account.
- * The full dashboard (overview, orders, etc.) arrives in later phases;
- * for now this is a placeholder shell proving auth + roles work.
  */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
@@ -20,7 +21,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::view('/profile', 'profile')->name('profile');
+
+    // Buy Challenge + Orders (Phase 03)
+    Route::get('/dashboard/buynow', BuyChallenge::class)->name('dashboard.buynow');
+    Route::get('/dashboard/orders', [OrderController::class, 'index'])->name('dashboard.orders');
+    Route::get('/dashboard/orders/{order}/pay', [OrderController::class, 'pay'])->name('dashboard.orders.pay');
 });
+
+/*
+ * Payment gateway webhook (IPN). Public + CSRF-exempt (see bootstrap/app.php);
+ * every request is signature-verified inside the gateway driver.
+ */
+Route::post('/webhooks/payment/{gateway}', [PaymentWebhookController::class, 'handle'])
+    ->name('webhooks.payment');
 
 // The back office lives at /admin, owned by the Filament panel
 // (see App\Providers\Filament\AdminPanelProvider). Access is gated to staff
