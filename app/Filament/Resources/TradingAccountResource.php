@@ -65,6 +65,7 @@ class TradingAccountResource extends Resource
                 Tables\Filters\SelectFilter::make('platform')->options(['mt5' => 'MT5', 'mt4' => 'MT4']),
             ])
             ->actions([
+                Tables\Actions\ActionGroup::make([
                 // Issue MT5/MT4 credentials + activate.
                 Tables\Actions\Action::make('assign')
                     ->label('Assign')
@@ -99,7 +100,6 @@ class TradingAccountResource extends Resource
                         Notification::make()->title('Metrics updated')->success()->send();
                     }),
 
-                Tables\Actions\ActionGroup::make([
                     // Advance a phase / fund.
                     Tables\Actions\Action::make('passPhase')
                         ->label('Pass phase / fund')
@@ -135,7 +135,7 @@ class TradingAccountResource extends Resource
                             app(AccountManager::class)->breach($record, $data['reason']);
                             Notification::make()->title('Account marked as breached')->danger()->send();
                         }),
-                ])->label('Phase / breach')->icon('heroicon-m-ellipsis-vertical')->button(),
+                ])->label('Manage')->icon('heroicon-m-ellipsis-vertical')->button(),
             ])
             ->bulkActions([]);
     }
