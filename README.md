@@ -24,7 +24,9 @@ Foundation milestone — build order steps 1–2:
       webhook, admin Orders + Mark-paid → provisions a pending account)
 - [x] Account Overview: metric tiles, profit-target & drawdown progress, SVG
       equity chart, per-account detail with credentials + rules
-- [ ] Admin account assignment + phase/breach management — next milestone
+- [x] Admin: Trading Accounts — assign credentials, update metrics, pass phase /
+      fund (auto certificate), breach; in-app notifications to the trader
+- [ ] Withdrawals + KYC — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards
 - [ ] Marketing website + CMS
