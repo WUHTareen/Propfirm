@@ -12,6 +12,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  * Admin-managed payment settings: the active gateway and (for manual mode) the
@@ -75,6 +76,24 @@ class PaymentSettings extends Page implements HasForms
                     ->description('Shown to traders on the payment page when the manual gateway is active.')
                     ->columns(2)
                     ->schema($walletFields),
+
+                Section::make('NOWPayments credentials')
+                    ->description('Stored encrypted. Leave a field blank to keep the current value; type a new value to replace it.')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('nowpayments_api_key')
+                            ->label('API key')
+                            ->password()
+                            ->revealable()
+                            ->autocomplete(false)
+                            ->placeholder(Setting::get('nowpayments_api_key') ? '•••••••• (saved)' : 'Not set'),
+                        TextInput::make('nowpayments_ipn_secret')
+                            ->label('IPN secret')
+                            ->password()
+                            ->revealable()
+                            ->autocomplete(false)
+                            ->placeholder(Setting::get('nowpayments_ipn_secret') ? '•••••••• (saved)' : 'Not set'),
+                    ]),
             ])
             ->statePath('data');
     }
@@ -88,6 +107,17 @@ class PaymentSettings extends Page implements HasForms
         foreach (array_keys(config('payments.methods')) as $method) {
             Setting::set("wallet_{$method}", $data["wallet_{$method}"] ?? '', 'payments');
         }
+
+        // Secrets: only overwrite when a new value is typed, and store encrypted.
+        foreach (['nowpayments_api_key', 'nowpayments_ipn_secret'] as $secretKey) {
+            if (! empty($data[$secretKey])) {
+                Setting::set($secretKey, Crypt::encryptString($data[$secretKey]), 'payments');
+            }
+        }
+
+        // Clear the entered secrets from the form so they aren't echoed back.
+        $this->data['nowpayments_api_key'] = '';
+        $this->data['nowpayments_ipn_secret'] = '';
 
         Notification::make()->title('Payment settings saved')->success()->send();
     }

@@ -3,8 +3,10 @@
 namespace App\Services\Payments;
 
 use App\Models\Order;
+use App\Models\Setting;
 use App\Services\Payments\Contracts\PaymentGateway;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -22,11 +24,30 @@ class NowPaymentsGateway implements PaymentGateway
         return 'nowpayments';
     }
 
+    /**
+     * Resolve a secret from encrypted admin settings first, then .env/config.
+     */
+    public static function secret(string $settingKey, string $configKey): ?string
+    {
+        $stored = Setting::get($settingKey);
+
+        if ($stored) {
+            try {
+                return Crypt::decryptString($stored);
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        return config($configKey);
+    }
+
     public function createPayment(Order $order, string $method): PaymentIntent
     {
         $config = config('payments.gateways.nowpayments');
+        $apiKey = static::secret('nowpayments_api_key', 'payments.gateways.nowpayments.api_key');
 
-        if (empty($config['api_key'])) {
+        if (empty($apiKey)) {
             throw new RuntimeException('NOWPayments API key is not configured.');
         }
 
@@ -45,7 +66,7 @@ class NowPaymentsGateway implements PaymentGateway
         }
 
         $response = Http::withHeaders([
-            'x-api-key' => $config['api_key'],
+            'x-api-key' => $apiKey,
         ])->post(rtrim($config['base_url'], '/').'/invoice', $payload);
 
         if (! $response->successful()) {
@@ -64,7 +85,7 @@ class NowPaymentsGateway implements PaymentGateway
 
     public function parseWebhook(Request $request): ?WebhookResult
     {
-        $secret = config('payments.gateways.nowpayments.ipn_secret');
+        $secret = static::secret('nowpayments_ipn_secret', 'payments.gateways.nowpayments.ipn_secret');
         $signature = $request->header('x-nowpayments-sig');
 
         if (! $secret || ! $signature) {

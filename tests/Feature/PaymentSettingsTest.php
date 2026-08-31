@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Pages\PaymentSettings;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Payments\NowPaymentsGateway;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -49,5 +50,32 @@ class PaymentSettingsTest extends TestCase
         $this->assertSame('nowpayments', Setting::get('payment_gateway'));
         $this->assertSame('0xBSCWALLET', Setting::get('wallet_usdt_bsc'));
         $this->assertSame('bc1qexample', Setting::get('wallet_btc'));
+    }
+
+    public function test_api_key_is_stored_encrypted_and_blank_does_not_overwrite(): void
+    {
+        Livewire::actingAs($this->user('admin'))
+            ->test(PaymentSettings::class)
+            ->fillForm(['nowpayments_api_key' => 'super-secret-key'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        // Stored value is encrypted (not the plaintext), but resolves back to it.
+        $this->assertNotSame('super-secret-key', Setting::get('nowpayments_api_key'));
+        $this->assertSame(
+            'super-secret-key',
+            NowPaymentsGateway::secret('nowpayments_api_key', 'payments.gateways.nowpayments.api_key'),
+        );
+
+        // Saving again with a blank field must NOT wipe the stored key.
+        Livewire::actingAs($this->user('admin'))
+            ->test(PaymentSettings::class)
+            ->fillForm(['nowpayments_api_key' => ''])
+            ->call('save');
+
+        $this->assertSame(
+            'super-secret-key',
+            NowPaymentsGateway::secret('nowpayments_api_key', 'payments.gateways.nowpayments.api_key'),
+        );
     }
 }
