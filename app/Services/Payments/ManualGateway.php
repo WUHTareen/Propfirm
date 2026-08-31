@@ -3,6 +3,7 @@
 namespace App\Services\Payments;
 
 use App\Models\Order;
+use App\Models\Setting;
 use App\Services\Payments\Contracts\PaymentGateway;
 use Illuminate\Http\Request;
 
@@ -21,7 +22,9 @@ class ManualGateway implements PaymentGateway
 
     public function createPayment(Order $order, string $method): PaymentIntent
     {
-        $wallet = config("payments.gateways.manual.wallets.{$method}") ?: null;
+        // Admin-managed wallet (DB) takes precedence over the .env fallback.
+        $wallet = Setting::get("wallet_{$method}")
+            ?: (config("payments.gateways.manual.wallets.{$method}") ?: null);
 
         return new PaymentIntent(
             reference: $order->order_number,

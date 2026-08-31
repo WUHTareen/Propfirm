@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Models\Setting;
 use App\Services\Payments\Contracts\PaymentGateway;
 use InvalidArgumentException;
 
@@ -16,9 +17,17 @@ class PaymentManager
         'nowpayments' => NowPaymentsGateway::class,
     ];
 
+    /**
+     * The gateway selected in admin settings (falling back to config/.env).
+     */
+    public function activeName(): string
+    {
+        return Setting::get('payment_gateway') ?: config('payments.default', 'manual');
+    }
+
     public function driver(?string $name = null): PaymentGateway
     {
-        $name ??= config('payments.default', 'manual');
+        $name ??= $this->activeName();
 
         if (! isset($this->drivers[$name])) {
             throw new InvalidArgumentException("Unknown payment gateway [{$name}].");

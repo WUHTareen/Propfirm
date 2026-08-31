@@ -61,7 +61,7 @@ class CheckoutService
                 'currency' => 'USD',
                 'status' => 'pending',
                 'payment_method' => $method,
-                'payment_gateway' => config('payments.default', 'manual'),
+                'payment_gateway' => app(\App\Services\Payments\PaymentManager::class)->activeName(),
             ]);
 
             // Spend redeemed points against the ledger.
