@@ -32,10 +32,10 @@ Foundation milestone — build order steps 1–2:
 - [x] Rewards / points / affiliation — points wallet + ledger, share points,
       video/social submissions (admin approval credits points), referral links
       with click/signup/conversion tracking and commission on referred orders
-- [ ] Leaderboard, TradingView widgets, downloads, notifications — next milestone
-- [ ] Buy-challenge flow + crypto checkout
-- [ ] Trader dashboard, withdrawals, KYC, rewards
-- [ ] Marketing website + CMS
+- [x] Leaderboard (profit ranking + size filter), TradingView heatmap &
+      economic calendar, MT5/MT4 downloads, in-app notifications centre
+- [ ] Marketing website + CMS — next milestone
+- [ ] MT5 automation (Module D, Option 2)
 
 ## Data model (high level)
 

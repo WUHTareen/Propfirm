@@ -3,6 +3,8 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\KycController;
+use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\WithdrawalController;
@@ -49,6 +51,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/affiliation', [AffiliationController::class, 'index'])->name('dashboard.affiliation');
     Route::post('/dashboard/affiliation/share', [AffiliationController::class, 'share'])->name('dashboard.affiliation.share');
     Route::post('/dashboard/affiliation/reward', [AffiliationController::class, 'reward'])->name('dashboard.affiliation.reward');
+
+    // Leaderboard, market widgets, downloads & notifications (Phase 08)
+    Route::get('/dashboard/leaderboard', [LeaderboardController::class, 'index'])->name('dashboard.leaderboard');
+    Route::view('/dashboard/heatmap', 'dashboard.heatmap')->name('dashboard.heatmap');
+    Route::view('/dashboard/calendar', 'dashboard.calendar')->name('dashboard.calendar');
+    Route::view('/dashboard/downloads', 'dashboard.downloads')->name('dashboard.downloads');
+
+    Route::get('/dashboard/notifications', [NotificationController::class, 'index'])->name('dashboard.notifications');
+    Route::post('/dashboard/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('dashboard.notifications.readAll');
+    Route::post('/dashboard/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('dashboard.notifications.read');
 });
 
 // Staff-only KYC file download (private — never a public URL).
