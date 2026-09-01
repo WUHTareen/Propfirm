@@ -27,8 +27,17 @@ class OrderController extends Controller
                 ->with('status', "Order {$order->order_number} is already paid.");
         }
 
-        $gateway = $payments->driver($order->payment_gateway);
-        $intent = $gateway->createPayment($order, $order->payment_method);
+        // Build the payment intent. If the stored gateway is misconfigured
+        // (e.g. NOWPayments selected but no API key yet), fall back to manual
+        // instructions so checkout never hard-fails.
+        try {
+            $gateway = $payments->driver($order->payment_gateway);
+            $intent = $gateway->createPayment($order, $order->payment_method);
+        } catch (\Throwable $e) {
+            report($e);
+            $intent = app(\App\Services\Payments\ManualGateway::class)
+                ->createPayment($order, $order->payment_method);
+        }
 
         // Persist the gateway reference for later reconciliation.
         if ($intent->reference && $intent->reference !== $order->payment_reference) {

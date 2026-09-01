@@ -25,6 +25,12 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+echo "==> Fixing storage/cache ownership + permissions"
+# Artisan run as root can leave root-owned files that php-fpm (www-data)
+# cannot write — restore ownership so logging and uploads work.
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
 echo "==> Restarting queue workers"
 # Requires the Supervisor group from ops/propfirm-worker.conf.
 if command -v supervisorctl >/dev/null 2>&1; then

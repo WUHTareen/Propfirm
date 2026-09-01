@@ -88,6 +88,18 @@ class CheckoutTest extends TestCase
         $this->actingAs($other)->get(route('dashboard.orders.pay', $order))->assertForbidden();
     }
 
+    public function test_pay_page_falls_back_when_gateway_is_misconfigured(): void
+    {
+        // NOWPayments selected but no API key -> must not 500; falls back to manual.
+        config()->set('payments.gateways.nowpayments.api_key', null);
+        $owner = $this->trader();
+        $order = Order::factory()->for($owner)->create(['status' => 'pending', 'payment_gateway' => 'nowpayments']);
+
+        $this->actingAs($owner)->get(route('dashboard.orders.pay', $order))
+            ->assertOk()
+            ->assertSee('Complete your payment');
+    }
+
     public function test_nowpayments_webhook_marks_order_paid_and_provisions_account(): void
     {
         config()->set('payments.gateways.nowpayments.ipn_secret', 'test-secret');
