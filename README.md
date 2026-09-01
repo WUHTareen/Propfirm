@@ -29,7 +29,10 @@ Foundation milestone — build order steps 1–2:
 - [x] KYC (locked until funded) — upload, admin approve/reject, private download
 - [x] Withdrawals — eligibility (funded + KYC + profit), request, admin
       approve / mark-paid / reject
-- [ ] Rewards / points / affiliation — next milestone
+- [x] Rewards / points / affiliation — points wallet + ledger, share points,
+      video/social submissions (admin approval credits points), referral links
+      with click/signup/conversion tracking and commission on referred orders
+- [ ] Leaderboard, TradingView widgets, downloads, notifications — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards
 - [ ] Marketing website + CMS

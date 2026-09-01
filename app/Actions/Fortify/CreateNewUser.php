@@ -45,6 +45,11 @@ class CreateNewUser implements CreatesNewUsers
         // Every registered customer is a trader by default.
         $user->assignRole('trader');
 
+        // Attribute the signup to a referral code captured earlier (?ref=...).
+        if ($code = session()->pull('referral_code')) {
+            app(\App\Services\Affiliates\AffiliateService::class)->attributeSignup($user, $code);
+        }
+
         return $user;
     }
 

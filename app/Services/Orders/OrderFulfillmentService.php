@@ -31,6 +31,7 @@ class OrderFulfillmentService
 
             $this->awardCashback($order);
             $this->provisionAccount($order);
+            app(\App\Services\Affiliates\AffiliateService::class)->creditCommission($order);
 
             return $order->refresh();
         });

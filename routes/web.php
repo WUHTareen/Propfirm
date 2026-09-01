@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\KycController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
@@ -9,6 +10,9 @@ use App\Livewire\BuyChallenge;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
+
+// Referral capture: /r/CODE stores the code and sends the visitor to register.
+Route::get('/r/{code}', [AffiliationController::class, 'referral'])->name('referral');
 
 /*
  * Trader area — requires a verified, logged-in account.
@@ -40,6 +44,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Withdrawals (Phase 06)
     Route::get('/dashboard/withdrawal', [WithdrawalController::class, 'index'])->name('dashboard.withdrawal');
     Route::post('/dashboard/withdrawal', [WithdrawalController::class, 'store'])->name('dashboard.withdrawal.store');
+
+    // Affiliation / Rewards (Phase 07)
+    Route::get('/dashboard/affiliation', [AffiliationController::class, 'index'])->name('dashboard.affiliation');
+    Route::post('/dashboard/affiliation/share', [AffiliationController::class, 'share'])->name('dashboard.affiliation.share');
+    Route::post('/dashboard/affiliation/reward', [AffiliationController::class, 'reward'])->name('dashboard.affiliation.reward');
 });
 
 // Staff-only KYC file download (private — never a public URL).
