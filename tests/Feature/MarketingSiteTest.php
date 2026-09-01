@@ -101,7 +101,6 @@ class MarketingSiteTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('admin');
 
-        $this->actingAs($admin)->get('/admin/faqs')->assertOk();
         $this->actingAs($admin)->get('/admin/testimonials')->assertOk();
         $this->actingAs($admin)->get('/admin/site-content')->assertOk();
     }
@@ -112,8 +111,31 @@ class MarketingSiteTest extends TestCase
         $finance = User::factory()->create(['email_verified_at' => now()]);
         $finance->assignRole('finance');
 
-        $this->actingAs($finance)->get('/admin/faqs')->assertForbidden();
+        $this->actingAs($finance)->get('/admin/testimonials')->assertForbidden();
         $this->actingAs($finance)->get('/admin/site-content')->assertForbidden();
+    }
+
+    public function test_faqs_can_be_managed_inline_from_site_content(): void
+    {
+        $admin = User::factory()->create(['email_verified_at' => now()]);
+        $admin->assignRole('admin');
+
+        $existing = \App\Models\Faq::count();
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\SiteContent::class)
+            ->set('data.faqs', [
+                ['id' => null, 'question' => 'Can I add this from the CMS?', 'answer' => 'Yes, right here.', 'category' => 'general', 'is_active' => true],
+            ])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        // The one submitted row replaces the previous set (delete-sync).
+        $this->assertSame(1, \App\Models\Faq::count());
+        $this->assertDatabaseHas('faqs', ['question' => 'Can I add this from the CMS?']);
+
+        // And it shows on the public FAQ page.
+        $this->get(route('faq'))->assertSee('Can I add this from the CMS?');
     }
 
     // ---- CMS control: toggles, headings, images ----------------------------

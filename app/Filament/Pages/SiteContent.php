@@ -2,11 +2,14 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Faq;
 use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
@@ -86,6 +89,15 @@ class SiteContent extends Page implements HasForms
         'legal_refund' => 'content',
     ];
 
+    private const FAQ_CATEGORIES = [
+        'general' => 'General',
+        'accounts' => 'Accounts',
+        'payments' => 'Payments',
+        'payouts' => 'Payouts',
+        'kyc' => 'KYC',
+        'rewards' => 'Rewards',
+    ];
+
     private const IMAGES = ['logo_path', 'hero_image_path', 'about_image_path'];
     private const REPEATERS = ['features', 'how_it_works', 'prohibited_rules', 'allowed_rules'];
     private const BOOLS = ['show_features', 'show_howitworks', 'show_pricing_preview', 'show_testimonials', 'show_faq', 'show_cta'];
@@ -104,6 +116,16 @@ class SiteContent extends Page implements HasForms
         foreach (self::REPEATERS as $key) {
             $state[$key] = Setting::get($key, []);
         }
+
+        // FAQs are a real table — load them so they can be managed inline.
+        $state['faqs'] = Faq::orderBy('sort_order')->get()
+            ->map(fn (Faq $f) => [
+                'id' => $f->id,
+                'question' => $f->question,
+                'answer' => $f->answer,
+                'category' => $f->category,
+                'is_active' => (bool) $f->is_active,
+            ])->all();
 
         $this->form->fill($state);
     }
@@ -178,10 +200,24 @@ class SiteContent extends Page implements HasForms
                             Toggle::make('show_testimonials')->label('Show this section')->inline(false),
                             TextInput::make('testimonials_heading')->label('Heading')->placeholder('Trusted by traders'),
                         ])->description('Add and edit testimonials (with photos) under Content → Testimonials.'),
-                        Section::make('FAQ preview')->schema([
-                            Toggle::make('show_faq')->label('Show this section')->inline(false),
-                            TextInput::make('faq_heading')->label('Heading')->placeholder('Frequently asked'),
-                        ])->description('Add and edit questions under Content → FAQs.'),
+                        Section::make('FAQ')->schema([
+                            Toggle::make('show_faq')->label('Show the FAQ preview on the homepage')->inline(false),
+                            TextInput::make('faq_heading')->label('Homepage heading')->placeholder('Frequently asked'),
+                            Repeater::make('faqs')->hiddenLabel()
+                                ->schema([
+                                    Hidden::make('id'),
+                                    TextInput::make('question')->required()->maxLength(255)->columnSpanFull(),
+                                    Textarea::make('answer')->required()->rows(3)->columnSpanFull(),
+                                    Select::make('category')->options(self::FAQ_CATEGORIES)->default('general')->native(false)->required(),
+                                    Toggle::make('is_active')->label('Published')->default(true)->inline(false),
+                                ])
+                                ->columns(2)
+                                ->addActionLabel('Add question')
+                                ->defaultItems(0)
+                                ->collapsible()
+                                ->reorderable()
+                                ->itemLabel(fn (array $state) => $state['question'] ?? 'New question'),
+                        ])->description('These questions appear on the FAQ page and the homepage preview. Drag to reorder.'),
                         Section::make('Call to action (bottom)')->schema([
                             Toggle::make('show_cta')->label('Show this section')->inline(false),
                             Grid::make(2)->schema([
@@ -267,7 +303,41 @@ class SiteContent extends Page implements HasForms
             Setting::set($key, array_values($data[$key] ?? []), 'content');
         }
 
+        $this->syncFaqs($data['faqs'] ?? []);
+
         Notification::make()->title('Site content saved')->success()->send();
+    }
+
+    /**
+     * Persist the inline FAQ repeater to the faqs table: upsert each row (keeping
+     * repeater order as sort_order) and delete any rows removed in the form.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    protected function syncFaqs(array $rows): void
+    {
+        $keptIds = [];
+
+        foreach (array_values($rows) as $order => $row) {
+            if (empty($row['question']) || empty($row['answer'])) {
+                continue;
+            }
+
+            $faq = Faq::updateOrCreate(
+                ['id' => $row['id'] ?? null],
+                [
+                    'question' => $row['question'],
+                    'answer' => $row['answer'],
+                    'category' => $row['category'] ?? 'general',
+                    'is_active' => (bool) ($row['is_active'] ?? true),
+                    'sort_order' => $order,
+                ],
+            );
+
+            $keptIds[] = $faq->id;
+        }
+
+        Faq::whereNotIn('id', $keptIds ?: [0])->delete();
     }
 
     protected function getFormActions(): array
