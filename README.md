@@ -34,8 +34,10 @@ Foundation milestone — build order steps 1–2:
       with click/signup/conversion tracking and commission on referred orders
 - [x] Leaderboard (profit ranking + size filter), TradingView heatmap &
       economic calendar, MT5/MT4 downloads, in-app notifications centre
-- [ ] Marketing website + CMS — next milestone
-- [ ] MT5 automation (Module D, Option 2)
+- [x] Marketing website (home, pricing, trading rules, about, FAQ, contact,
+      legal) — all content admin-editable — plus CMS (FAQs, testimonials,
+      Site Content editor); FB Pixel / GA / Tawk.to injected from settings
+- [ ] MT5 automation (Module D, Option 2) — next milestone
 
 ## Data model (high level)
 

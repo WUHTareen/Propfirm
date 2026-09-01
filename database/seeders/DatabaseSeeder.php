@@ -16,7 +16,9 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             ChallengePlanSeeder::class,
             SettingSeeder::class,
+            SiteContentSeeder::class,
             FaqSeeder::class,
+            TestimonialSeeder::class,
         ]);
     }
 }

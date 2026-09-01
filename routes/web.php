@@ -7,11 +7,27 @@ use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\WithdrawalController;
 use App\Livewire\BuyChallenge;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+/*
+ * Public marketing website (Phase 09).
+ */
+Route::get('/', [PublicController::class, 'home'])->name('home');
+Route::get('/pricing', [PublicController::class, 'pricing'])->name('pricing');
+Route::get('/trading-rules', [PublicController::class, 'rules'])->name('rules');
+Route::get('/about', [PublicController::class, 'about'])->name('about');
+Route::get('/faq', [PublicController::class, 'faq'])->name('faq');
+Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
+Route::post('/contact', [PublicController::class, 'contactSubmit'])->name('contact.submit');
+Route::get('/legal/{doc}', [PublicController::class, 'legal'])->name('legal')
+    ->where('doc', 'terms|privacy|refund');
+// Convenience named routes for the footer.
+Route::get('/legal/terms', [PublicController::class, 'legal'])->defaults('doc', 'terms')->name('legal.terms');
+Route::get('/legal/privacy', [PublicController::class, 'legal'])->defaults('doc', 'privacy')->name('legal.privacy');
+Route::get('/legal/refund', [PublicController::class, 'legal'])->defaults('doc', 'refund')->name('legal.refund');
 
 // Referral capture: /r/CODE stores the code and sends the visitor to register.
 Route::get('/r/{code}', [AffiliationController::class, 'referral'])->name('referral');
