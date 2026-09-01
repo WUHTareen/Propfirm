@@ -1,6 +1,10 @@
+@php $aboutImage = \App\Support\Cms::image('about_image_path', true); @endphp
 <x-marketing title="About" description="Who we are and how our funded-trader evaluation works.">
     <section class="mx-auto max-w-3xl px-6 py-16">
         <h1 class="font-display text-4xl font-extrabold text-white">{{ $heading }}</h1>
+        @if ($aboutImage)
+            <img src="{{ $aboutImage }}" alt="" class="mt-8 w-full rounded-2xl border border-ink-700">
+        @endif
         <div class="prose-invert mt-6 space-y-4 text-slate-300">
             @foreach (preg_split('/\n\s*\n/', trim($body)) as $para)
                 <p class="leading-relaxed text-slate-400">{{ $para }}</p>

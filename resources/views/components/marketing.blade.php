@@ -2,8 +2,11 @@
 
 @php
     use App\Models\Setting;
+    use App\Support\Cms;
 
     $siteName = config('app.name');
+    $logo = Cms::image('logo_path', true);
+    $footerTagline = Setting::get('footer_tagline') ?: 'Funded trading challenges evaluated on MetaTrader 5 & 4.';
     $metaDescription = $description ?? Setting::get('hero_subtitle', 'Funded trading challenges on MetaTrader 5 & 4.');
 
     $nav = [
@@ -66,8 +69,12 @@
     <header x-data="{ open: false }" class="sticky top-0 z-40 border-b border-ink-800/80 bg-ink-950/85 backdrop-blur">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <a href="{{ route('home') }}" class="flex items-center gap-2.5">
-                <span class="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-display text-lg font-extrabold text-ink-950">P</span>
-                <span class="font-display text-xl font-bold tracking-tight text-white">{{ $siteName }}</span>
+                @if ($logo)
+                    <img src="{{ $logo }}" alt="{{ $siteName }}" class="h-9 w-auto max-w-[180px]">
+                @else
+                    <span class="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-display text-lg font-extrabold text-ink-950">P</span>
+                    <span class="font-display text-xl font-bold tracking-tight text-white">{{ $siteName }}</span>
+                @endif
             </a>
 
             {{-- Desktop nav --}}
@@ -108,10 +115,14 @@
         <div class="mx-auto grid max-w-6xl gap-8 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
             <div>
                 <div class="flex items-center gap-2.5">
-                    <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-500 font-display text-base font-extrabold text-ink-950">P</span>
-                    <span class="font-display text-lg font-bold text-white">{{ $siteName }}</span>
+                    @if ($logo)
+                        <img src="{{ $logo }}" alt="{{ $siteName }}" class="h-8 w-auto max-w-[160px]">
+                    @else
+                        <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-500 font-display text-base font-extrabold text-ink-950">P</span>
+                        <span class="font-display text-lg font-bold text-white">{{ $siteName }}</span>
+                    @endif
                 </div>
-                <p class="mt-3 max-w-xs text-sm text-slate-500">Funded trading challenges evaluated on MetaTrader 5 & 4.</p>
+                <p class="mt-3 max-w-xs text-sm text-slate-500">{{ $footerTagline }}</p>
             </div>
             <div>
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Platform</p>

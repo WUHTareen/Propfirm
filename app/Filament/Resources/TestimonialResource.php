@@ -32,6 +32,15 @@ class TestimonialResource extends Resource
                 ->label('Country code')
                 ->maxLength(2)
                 ->helperText('ISO 2-letter code, e.g. AE, GB.'),
+            Forms\Components\FileUpload::make('avatar_path')
+                ->label('Photo')
+                ->image()
+                ->avatar()
+                ->imageEditor()
+                ->directory('site/testimonials')
+                ->disk('public')
+                ->maxSize(2048)
+                ->helperText('Optional. Square image works best.'),
             Forms\Components\Textarea::make('body')
                 ->required()
                 ->rows(4)
@@ -60,6 +69,11 @@ class TestimonialResource extends Resource
         return $table
             ->defaultSort('sort_order')
             ->columns([
+                Tables\Columns\ImageColumn::make('avatar_path')
+                    ->label('')
+                    ->circular()
+                    ->disk('public')
+                    ->defaultImageUrl(url('/favicon.ico')),
                 Tables\Columns\TextColumn::make('author_name')
                     ->searchable()
                     ->sortable(),

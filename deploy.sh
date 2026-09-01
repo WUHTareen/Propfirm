@@ -33,6 +33,10 @@ composer install --no-dev --optimize-autoloader --no-interaction
 echo "==> Running database migrations"
 php artisan migrate --force
 
+echo "==> Ensuring public storage symlink (CMS image uploads)"
+# Serves uploaded logos/hero/testimonial images at /storage/*. No-op if present.
+php artisan storage:link 2>/dev/null || true
+
 echo "==> Rebuilding caches"
 php artisan config:cache
 php artisan route:cache

@@ -115,4 +115,48 @@ class MarketingSiteTest extends TestCase
         $this->actingAs($finance)->get('/admin/faqs')->assertForbidden();
         $this->actingAs($finance)->get('/admin/site-content')->assertForbidden();
     }
+
+    // ---- CMS control: toggles, headings, images ----------------------------
+
+    public function test_a_home_section_can_be_hidden_from_the_cms(): void
+    {
+        $this->get(route('home'))->assertSee('Trusted by traders');
+
+        \App\Models\Setting::set('show_testimonials', false, 'content');
+
+        $this->get(route('home'))->assertDontSee('Trusted by traders');
+    }
+
+    public function test_section_headings_and_cta_are_editable(): void
+    {
+        \App\Models\Setting::set('howitworks_heading', 'Your path to funding', 'content');
+        \App\Models\Setting::set('cta_heading', 'Join hundreds of funded traders', 'content');
+
+        $this->get(route('home'))
+            ->assertSee('Your path to funding')
+            ->assertSee('Join hundreds of funded traders')
+            ->assertDontSee('How it works');
+    }
+
+    public function test_uploaded_logo_and_hero_image_appear(): void
+    {
+        \App\Models\Setting::set('logo_path', 'site/logo.png', 'content');
+        \App\Models\Setting::set('hero_image_path', 'site/hero.jpg', 'content');
+
+        $this->get(route('home'))
+            ->assertSee('/storage/site/logo.png', false)
+            ->assertSee('/storage/site/hero.jpg', false);
+    }
+
+    public function test_pricing_is_single_source_home_and_pricing_agree(): void
+    {
+        // Change a plan's price; both the home preview and the pricing page
+        // must reflect it, proving they read the same source.
+        $plan = \App\Models\ChallengePlan::where('challenge_type', 'two_step')
+            ->orderBy('account_size')->first();
+        $plan->update(['price' => 137]);
+
+        $this->get(route('home'))->assertSee('$137');
+        $this->get(route('pricing'))->assertSee('$137');
+    }
 }

@@ -1,33 +1,47 @@
 @php
     use App\Models\Setting;
+    use App\Support\Cms;
+
     $money = fn ($n) => $n >= 1000 && $n % 1000 === 0 ? '$'.($n / 1000).'K' : '$'.number_format($n);
-    // Show the 2-step column on the homepage pricing preview when present.
     $previewType = array_key_first($types) ?? null;
+
+    $heroImage = Cms::image('hero_image_path', true);
+    $primaryCta = Setting::get('hero_primary_cta') ?: 'Start a challenge';
+    $secondaryCta = Setting::get('hero_secondary_cta') ?: 'View pricing';
 @endphp
 
 <x-marketing>
     {{-- Hero --}}
     <section class="relative overflow-hidden">
         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(45,212,191,0.12),transparent)]"></div>
-        <div class="relative mx-auto max-w-3xl px-6 py-24 text-center sm:py-32">
-            <span class="inline-block rounded-full border border-ink-700 bg-ink-800/80 px-3 py-1 font-mono text-xs uppercase tracking-wide text-brand-300">
-                {{ Setting::get('hero_badge', 'Trade. Pass. Get funded.') }}
-            </span>
-            <h1 class="mt-6 font-display text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl" style="text-wrap: balance;">
-                {{ Setting::get('hero_title', 'Prove your edge. Trade our capital.') }}
-            </h1>
-            <p class="mx-auto mt-6 max-w-xl text-lg text-slate-400">
-                {{ Setting::get('hero_subtitle', '') }}
-            </p>
-            <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
-                <a href="{{ route('register') }}" class="rounded-lg bg-brand-500 px-6 py-3 font-semibold text-ink-950 transition hover:bg-brand-400">Start a challenge</a>
-                <a href="{{ route('pricing') }}" class="rounded-lg border border-ink-600 px-6 py-3 font-medium text-slate-200 transition hover:bg-ink-800">View pricing</a>
+        <div class="relative mx-auto max-w-6xl px-6 py-20 sm:py-28">
+            <div class="grid items-center gap-10 {{ $heroImage ? 'lg:grid-cols-2' : '' }}">
+                <div class="{{ $heroImage ? 'text-left' : 'mx-auto max-w-3xl text-center' }}">
+                    <span class="inline-block rounded-full border border-ink-700 bg-ink-800/80 px-3 py-1 font-mono text-xs uppercase tracking-wide text-brand-300">
+                        {{ Setting::get('hero_badge', 'Trade. Pass. Get funded.') }}
+                    </span>
+                    <h1 class="mt-6 font-display text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl" style="text-wrap: balance;">
+                        {{ Setting::get('hero_title', 'Prove your edge. Trade our capital.') }}
+                    </h1>
+                    <p class="mt-6 max-w-xl text-lg text-slate-400 {{ $heroImage ? '' : 'mx-auto' }}">
+                        {{ Setting::get('hero_subtitle', '') }}
+                    </p>
+                    <div class="mt-9 flex flex-wrap items-center gap-3 {{ $heroImage ? '' : 'justify-center' }}">
+                        <a href="{{ route('register') }}" class="rounded-lg bg-brand-500 px-6 py-3 font-semibold text-ink-950 transition hover:bg-brand-400">{{ $primaryCta }}</a>
+                        <a href="{{ route('pricing') }}" class="rounded-lg border border-ink-600 px-6 py-3 font-medium text-slate-200 transition hover:bg-ink-800">{{ $secondaryCta }}</a>
+                    </div>
+                </div>
+                @if ($heroImage)
+                    <div class="relative">
+                        <img src="{{ $heroImage }}" alt="" class="w-full rounded-2xl border border-ink-700 shadow-2xl shadow-black/40">
+                    </div>
+                @endif
             </div>
         </div>
     </section>
 
     {{-- Features --}}
-    @if (!empty($features))
+    @if (Cms::shows('show_features') && !empty($features))
         <section class="mx-auto max-w-6xl px-6 py-12">
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($features as $f)
@@ -41,11 +55,11 @@
     @endif
 
     {{-- How it works --}}
-    @if (!empty($howItWorks))
+    @if (Cms::shows('show_howitworks') && !empty($howItWorks))
         <section class="mx-auto max-w-6xl px-6 py-14">
             <div class="mb-8 text-center">
-                <h2 class="font-display text-3xl font-bold text-white">How it works</h2>
-                <p class="mt-2 text-slate-400">From checkout to funded in four steps.</p>
+                <h2 class="font-display text-3xl font-bold text-white">{{ Setting::get('howitworks_heading') ?: 'How it works' }}</h2>
+                <p class="mt-2 text-slate-400">{{ Setting::get('howitworks_subheading') ?: 'From checkout to funded in four steps.' }}</p>
             </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($howItWorks as $step)
@@ -60,12 +74,12 @@
     @endif
 
     {{-- Pricing preview --}}
-    @if ($previewType && !empty($plans['byType'][$previewType]))
+    @if (Cms::shows('show_pricing_preview') && $previewType && !empty($plans['byType'][$previewType]))
         <section class="mx-auto max-w-6xl px-6 py-14">
             <div class="mb-8 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h2 class="font-display text-3xl font-bold text-white">{{ $types[$previewType] }} pricing</h2>
-                    <p class="mt-2 text-slate-400">One-time fee per account size. All prices in USD.</p>
+                    <h2 class="font-display text-3xl font-bold text-white">{{ Setting::get('pricing_heading') ?: $types[$previewType].' pricing' }}</h2>
+                    <p class="mt-2 text-slate-400">{{ Setting::get('pricing_subheading') ?: 'One-time fee per account size. All prices in USD.' }}</p>
                 </div>
                 <a href="{{ route('pricing') }}" class="text-sm font-medium text-brand-300 hover:text-brand-200">Compare all plans →</a>
             </div>
@@ -89,13 +103,14 @@
     @endif
 
     {{-- Testimonials --}}
-    @if ($testimonials->isNotEmpty())
+    @if (Cms::shows('show_testimonials') && $testimonials->isNotEmpty())
         <section class="mx-auto max-w-6xl px-6 py-14">
             <div class="mb-8 text-center">
-                <h2 class="font-display text-3xl font-bold text-white">Trusted by traders</h2>
+                <h2 class="font-display text-3xl font-bold text-white">{{ Setting::get('testimonials_heading') ?: 'Trusted by traders' }}</h2>
             </div>
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($testimonials as $t)
+                    @php $avatar = Cms::image($t->avatar_path); @endphp
                     <figure class="rounded-2xl border border-ink-700 bg-ink-900 p-6">
                         <div class="flex gap-0.5 text-brand-400">
                             @for ($i = 0; $i < 5; $i++)
@@ -103,7 +118,14 @@
                             @endfor
                         </div>
                         <blockquote class="mt-3 text-sm leading-relaxed text-slate-300">"{{ $t->body }}"</blockquote>
-                        <figcaption class="mt-4 text-sm font-medium text-white">{{ $t->author_name }}@if($t->author_country)<span class="text-slate-500"> · {{ $t->author_country }}</span>@endif</figcaption>
+                        <figcaption class="mt-4 flex items-center gap-3">
+                            @if ($avatar)
+                                <img src="{{ $avatar }}" alt="{{ $t->author_name }}" class="h-9 w-9 rounded-full object-cover">
+                            @else
+                                <span class="grid h-9 w-9 place-items-center rounded-full bg-brand-500/15 font-display text-sm font-bold text-brand-300">{{ strtoupper(substr($t->author_name, 0, 1)) }}</span>
+                            @endif
+                            <span class="text-sm font-medium text-white">{{ $t->author_name }}@if($t->author_country)<span class="text-slate-500"> · {{ $t->author_country }}</span>@endif</span>
+                        </figcaption>
                     </figure>
                 @endforeach
             </div>
@@ -111,10 +133,10 @@
     @endif
 
     {{-- FAQ preview --}}
-    @if ($faqs->isNotEmpty())
+    @if (Cms::shows('show_faq') && $faqs->isNotEmpty())
         <section class="mx-auto max-w-3xl px-6 py-14">
             <div class="mb-8 text-center">
-                <h2 class="font-display text-3xl font-bold text-white">Frequently asked</h2>
+                <h2 class="font-display text-3xl font-bold text-white">{{ Setting::get('faq_heading') ?: 'Frequently asked' }}</h2>
             </div>
             <div class="divide-y divide-ink-800 overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
                 @foreach ($faqs as $faq)
@@ -134,11 +156,13 @@
     @endif
 
     {{-- CTA --}}
-    <section class="mx-auto max-w-6xl px-6 py-16">
-        <div class="rounded-3xl border border-brand-500/30 bg-gradient-to-b from-brand-500/10 to-transparent p-10 text-center">
-            <h2 class="font-display text-3xl font-bold text-white">Ready to get funded?</h2>
-            <p class="mx-auto mt-3 max-w-lg text-slate-400">Buy a challenge, prove your edge, and start trading our capital.</p>
-            <a href="{{ route('register') }}" class="mt-6 inline-flex rounded-lg bg-brand-500 px-6 py-3 font-semibold text-ink-950 transition hover:bg-brand-400">Start a challenge</a>
-        </div>
-    </section>
+    @if (Cms::shows('show_cta'))
+        <section class="mx-auto max-w-6xl px-6 py-16">
+            <div class="rounded-3xl border border-brand-500/30 bg-gradient-to-b from-brand-500/10 to-transparent p-10 text-center">
+                <h2 class="font-display text-3xl font-bold text-white">{{ Setting::get('cta_heading') ?: 'Ready to get funded?' }}</h2>
+                <p class="mx-auto mt-3 max-w-lg text-slate-400">{{ Setting::get('cta_body') ?: 'Buy a challenge, prove your edge, and start trading our capital.' }}</p>
+                <a href="{{ route('register') }}" class="mt-6 inline-flex rounded-lg bg-brand-500 px-6 py-3 font-semibold text-ink-950 transition hover:bg-brand-400">{{ Setting::get('cta_button') ?: 'Start a challenge' }}</a>
+            </div>
+        </section>
+    @endif
 </x-marketing>
