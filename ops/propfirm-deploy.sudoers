@@ -1,0 +1,12 @@
+# Passwordless sudo for the non-root `deploy` user — ONLY the exact commands a
+# deploy needs. Nothing else. Keeps the deploy user unprivileged everywhere else.
+#
+# Install (as root):
+#   sudo cp ops/propfirm-deploy.sudoers /etc/sudoers.d/propfirm-deploy
+#   sudo chmod 440 /etc/sudoers.d/propfirm-deploy
+#   sudo visudo -cf /etc/sudoers.d/propfirm-deploy   # syntax check — must say "parsed OK"
+#
+# If you named the user something other than `deploy`, change it below to match.
+
+deploy ALL=(root) NOPASSWD: /usr/bin/supervisorctl restart propfirm-worker\:*
+deploy ALL=(root) NOPASSWD: /usr/bin/supervisorctl status propfirm-worker\:*

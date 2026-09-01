@@ -11,15 +11,25 @@ sudo supervisorctl update
 sudo supervisorctl start propfirm-worker:*
 ```
 
-## 2. Laravel scheduler (cron)
+## 2. Non-root deploy user (do this first, before production)
 
-Add for the deploy user (`crontab -e`):
+Run deploys as an unprivileged `deploy` user — not root. This removes the
+"Do not run Composer as root" warning, lets Composer plugins (Filament asset
+publisher) run, and is the safe production posture.
+
+Full copy-paste walkthrough: **[`deploy-user-setup.md`](deploy-user-setup.md)**.
+Files it uses: `propfirm-deploy.sudoers` (scoped sudo) and
+`propfirm-worker.conf` (already set to `user=deploy`).
+
+## 3. Laravel scheduler (cron)
+
+Add for the **deploy** user (`sudo -u deploy crontab -e`):
 
 ```cron
 * * * * * cd /var/www/propfirm-platform && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-## 3. Deploys
+## 4. Deploys
 
 After the first setup, every deploy is just:
 
@@ -28,13 +38,13 @@ cd /var/www/propfirm-platform
 ./deploy.sh
 ```
 
-## 4. Still to do (from project notes)
+## 5. Still to do (from project notes)
 
 - [ ] SSH key auth from local machine
 - [ ] Domain + SSL via certbot (`certbot --nginx -d domain.com`)
 - [ ] UptimeRobot monitoring
 - [ ] Business email (Hostinger / Google Workspace) — do NOT run a mail server here
-- [ ] Non-root deploy user
+- [x] Non-root deploy user — see `deploy-user-setup.md`
 - [ ] Resize droplet to 2 GB before production; 4 GB when MT5 automation lands
 - [ ] Configure S3-compatible storage for KYC docs / certificates
 - [ ] Automated off-site DB backups (spatie/laravel-backup)
