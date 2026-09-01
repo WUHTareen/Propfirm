@@ -26,7 +26,10 @@ Foundation milestone — build order steps 1–2:
       equity chart, per-account detail with credentials + rules
 - [x] Admin: Trading Accounts — assign credentials, update metrics, pass phase /
       fund (auto certificate), breach; in-app notifications to the trader
-- [ ] Withdrawals + KYC — next milestone
+- [x] KYC (locked until funded) — upload, admin approve/reject, private download
+- [x] Withdrawals — eligibility (funded + KYC + profit), request, admin
+      approve / mark-paid / reject
+- [ ] Rewards / points / affiliation — next milestone
 - [ ] Buy-challenge flow + crypto checkout
 - [ ] Trader dashboard, withdrawals, KYC, rewards
 - [ ] Marketing website + CMS
