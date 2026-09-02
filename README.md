@@ -40,6 +40,10 @@ Foundation milestone — build order steps 1–2:
 - [x] Achievement — earned certificates plus "Request Reward" requests (admin
       sets the amount on approval) — and Guideline, the evaluation rules in the
       dashboard, driven by the same plan config as the public rules page
+- [x] Back office completed — Coupons, User Management (with staff roles),
+      Certificates, Affiliates (commission + mark-paid), Weekly Giveaway (draw
+      winners), Reports & Analytics with CSV export, and an overview widget
+      showing revenue and the queues waiting on staff
 - [ ] MT5 automation (Module D, Option 2) — next milestone
 
 ## Data model (high level)
