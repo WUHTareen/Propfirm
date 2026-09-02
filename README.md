@@ -37,6 +37,9 @@ Foundation milestone — build order steps 1–2:
 - [x] Marketing website (home, pricing, trading rules, about, FAQ, contact,
       legal) — all content admin-editable — plus CMS (FAQs, testimonials,
       Site Content editor); FB Pixel / GA / Tawk.to injected from settings
+- [x] Achievement — earned certificates plus "Request Reward" requests (admin
+      sets the amount on approval) — and Guideline, the evaluation rules in the
+      dashboard, driven by the same plan config as the public rules page
 - [ ] MT5 automation (Module D, Option 2) — next milestone
 
 ## Data model (high level)

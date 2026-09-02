@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RewardSubmission extends Model
 {
     protected $fillable = [
-        'user_id', 'type', 'platform', 'file_path', 'link', 'description',
+        'user_id', 'type', 'category', 'platform', 'file_path', 'link', 'description',
         'points_value', 'status', 'remarks', 'reviewed_by', 'reviewed_at',
     ];
 

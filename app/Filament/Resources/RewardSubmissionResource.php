@@ -42,6 +42,10 @@ class RewardSubmissionResource extends Resource
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => str_replace('_', ' ', ucfirst($state))),
+                Tables\Columns\TextColumn::make('category')
+                    ->label('Category')
+                    ->placeholder('—')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('platform')->placeholder('—'),
                 Tables\Columns\TextColumn::make('link')
                     ->url(fn (RewardSubmission $r) => $r->link, shouldOpenInNewTab: true)
@@ -57,6 +61,7 @@ class RewardSubmissionResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('type')->options([
                     'video_review' => 'Video review', 'social_media' => 'Social media',
+                    'task' => 'Reward request',
                 ]),
                 Tables\Filters\SelectFilter::make('status')->options([
                     'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected',
@@ -68,10 +73,20 @@ class RewardSubmissionResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (RewardSubmission $r) => $r->status === 'pending')
-                    ->requiresConfirmation()
-                    ->modalDescription(fn (RewardSubmission $r) => "Credit {$r->points_value} points to the trader.")
-                    ->action(function (RewardSubmission $record) {
-                        app(RewardSubmissionService::class)->approve($record, auth()->user());
+                    ->modalDescription('Points are credited to the trader on approval. 100 points = $1.00.')
+                    ->form(fn (RewardSubmission $r) => [
+                        Forms\Components\TextInput::make('points')
+                            ->label('Points to credit')
+                            ->helperText(fn () => $r->type === 'task'
+                                ? 'This request arrived without an amount — set what it is worth.'
+                                : 'Prefilled from settings; change it only if this case is different.')
+                            ->numeric()
+                            ->minValue(0)
+                            ->required()
+                            ->default($r->points_value),
+                    ])
+                    ->action(function (RewardSubmission $record, array $data) {
+                        app(RewardSubmissionService::class)->approve($record, auth()->user(), (int) $data['points']);
                         Notification::make()->title("Approved — {$record->points_value} points credited")->success()->send();
                     }),
                 Tables\Actions\Action::make('reject')

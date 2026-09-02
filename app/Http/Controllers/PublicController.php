@@ -6,21 +6,13 @@ use App\Models\ChallengePlan;
 use App\Models\Faq;
 use App\Models\Setting;
 use App\Models\Testimonial;
+use App\Support\ChallengeCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 
 class PublicController extends Controller
 {
-    /**
-     * Labels for the three challenge types, in display order.
-     */
-    private const TYPES = [
-        'two_step' => '2-Step',
-        'one_step' => '1-Step',
-        'instant' => 'Instant',
-    ];
-
     public function home()
     {
         return view('public.home', [
@@ -134,9 +126,7 @@ class PublicController extends Controller
      */
     private function availableTypes(): array
     {
-        $present = ChallengePlan::active()->distinct()->pluck('challenge_type')->all();
-
-        return array_filter(self::TYPES, fn ($type) => in_array($type, $present, true), ARRAY_FILTER_USE_KEY);
+        return ChallengeCatalog::availableTypes();
     }
 
     /**
@@ -167,14 +157,6 @@ class PublicController extends Controller
      */
     private function plansByType(): array
     {
-        $out = [];
-        foreach (array_keys($this->availableTypes()) as $type) {
-            $plan = ChallengePlan::active()->where('challenge_type', $type)->orderBy('account_size')->first();
-            if ($plan) {
-                $out[$type] = $plan;
-            }
-        }
-
-        return $out;
+        return ChallengeCatalog::plansByType();
     }
 }

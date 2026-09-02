@@ -50,13 +50,52 @@ class RewardSubmissionService
         ]);
     }
 
-    public function approve(RewardSubmission $submission, User $reviewer): void
+    /**
+     * "Request Reward" from the Achievement page. Unlike the one-time video
+     * and social rewards, a trader may file these repeatedly — but only one at
+     * a time, so a queue of duplicates can't pile up on the reviewer. The
+     * amount is left at zero for the admin to set when approving.
+     */
+    public function submitTask(User $user, string $category, string $description, ?string $link = null): RewardSubmission
+    {
+        $pending = $user->rewardSubmissions()
+            ->where('type', 'task')
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($pending) {
+            throw ValidationException::withMessages([
+                'category' => 'You already have a reward request awaiting review.',
+            ]);
+        }
+
+        return RewardSubmission::create([
+            'user_id' => $user->id,
+            'type' => 'task',
+            'category' => $category,
+            'link' => $link,
+            'description' => $description,
+            'points_value' => 0,
+            'status' => 'pending',
+        ]);
+    }
+
+    /**
+     * Approve and credit. Task rewards arrive worth nothing — the reviewer
+     * decides the amount — so an explicit $points overrides what was stored.
+     */
+    public function approve(RewardSubmission $submission, User $reviewer, ?int $points = null): void
     {
         if ($submission->status === 'approved') {
             return;
         }
 
+        if ($points !== null) {
+            $submission->points_value = max(0, $points);
+        }
+
         $submission->forceFill([
+            'points_value' => $submission->points_value,
             'status' => 'approved',
             'reviewed_by' => $reviewer->id,
             'reviewed_at' => now(),
@@ -67,12 +106,12 @@ class RewardSubmissionService
             $submission->points_value,
             'earn',
             $submission->type,
-            'Reward: '.str_replace('_', ' ', $submission->type),
+            'Reward: '.($submission->category ?: str_replace('_', ' ', $submission->type)),
         );
 
         $submission->user?->notify(new TradingAccountNotification(
             'Reward approved',
-            "You earned {$submission->points_value} points for your ".str_replace('_', ' ', $submission->type).'.',
+            "You earned {$submission->points_value} points for your ".($submission->category ?: str_replace('_', ' ', $submission->type)).'.',
             0,
         ));
     }

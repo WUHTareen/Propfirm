@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\AffiliationController;
+use App\Http\Controllers\GuidelineController;
 use App\Http\Controllers\KycController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\NotificationController;
@@ -67,6 +69,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/affiliation', [AffiliationController::class, 'index'])->name('dashboard.affiliation');
     Route::post('/dashboard/affiliation/share', [AffiliationController::class, 'share'])->name('dashboard.affiliation.share');
     Route::post('/dashboard/affiliation/reward', [AffiliationController::class, 'reward'])->name('dashboard.affiliation.reward');
+
+    // Achievement (certificates + reward requests) & Guideline (Phase 10)
+    Route::get('/dashboard/certificates', [AchievementController::class, 'index'])->name('dashboard.certificates');
+    Route::post('/dashboard/certificates/reward', [AchievementController::class, 'requestReward'])->name('dashboard.certificates.reward');
+    Route::get('/dashboard/guideline', [GuidelineController::class, 'index'])->name('dashboard.guideline');
 
     // Leaderboard, market widgets, downloads & notifications (Phase 08)
     Route::get('/dashboard/leaderboard', [LeaderboardController::class, 'index'])->name('dashboard.leaderboard');
